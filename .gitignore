@@ -1,32 +1,264 @@
-# Prerequisites
-*.d
+#include <iostream>
+#include <windows.h>
+#include <conio.h>
+using namespace std;
+// codigo ASCII
+#define IZQUIERDA 75
+#define DERECHA 77
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
 
-# Precompiled Headers
-*.gch
-*.pch
+char avion_l1[]= {' ',' ',' ', '*',' ',' ',' ',0};
+char avion_l2[]= {' ',' ','*', '*','*',' ',' ',0};
+char avion_l3[]= {' ','*',' ', '*',' ','*',' ',0};
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+char explocion_l1[]= {' ',' ','*','*',' ',' ',' ',0};
+char explocion_l2[]= {' ','*','*','*','*',' ',' ',0};
+char explocion_l3[]= {' ',' ','*','*',' ',' ',' ',0};
 
-# Fortran module files
-*.mod
-*.smod
+char explocion_r1[]= {'*',' ','*','*',' ','*',' ',0};
+char explocion_r2[]= {' ','*','*','*','*',' ',' ',0};
+char explocion_r3[]= {'*',' ','*','*',' ','*',' ',0};
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+char borrar_avion[]= {' ',' ',' ',' ',' ',' ',' ',0};
 
-# Executables
-*.exe
-*.out
-*.app
+int num_vidas = 3;
+int corazones = 3;
+int ix = 40; //coordenada X del avion
+int iy = 19; // coordenada Y del avion
+
+//  asteroide 1 
+int y = 8, x = 12;
+
+// asteroide 2
+int yy = 12, xx = 17;
+
+// asteroide 3
+int x1 = 58, y1 = 6;
+
+// asteroide 4
+int x2 = 70, y2 = 9;
+
+// libreria windows.h
+void gotoxy(int x, int y)
+{
+    HANDLE hcon;
+    COORD dwPos;
+
+    dwPos.X = x;
+    dwPos.Y = y;
+
+    hcon = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hcon, dwPos);
+}
+
+void vidas()
+{
+    gotoxy(2, 2);
+    cout << ("VIDAS: ");
+}
+
+// cantidad de corazones
+void barra_salud(int n)
+{
+    gotoxy(72,2);
+    cout <<(" ");
+    gotoxy(73,2);
+    cout <<(" ");
+    gotoxy(74,2);
+    cout <<(" ");
+
+    for(int v = 0; v < n; v++)
+    {
+        gotoxy(72+v,2);
+        printf("%c", 3); // en el codigo ASCII es un corazon
+    }
+
+}
+
+void avion_explota()
+{
+    gotoxy(ix,iy);
+    puts(explocion_l1);
+    gotoxy(ix,iy+1);
+    puts(explocion_l2); // + 1 en eje Y para que se imprima en la linea de abajo
+    gotoxy(ix,iy+2);
+    puts(explocion_l3); // + 1 en eje Y para que se imprima en la linea de abajo
+
+    Sleep(450); // el tiempo para que se vea la explosion, sino el programa va muy rapido y no se ve
+
+    gotoxy(ix,iy);
+    puts(explocion_r1);
+    gotoxy(ix,iy+1);
+    puts(explocion_r2);
+    gotoxy(ix,iy+2);
+    puts(explocion_r3);
+
+    Sleep(450);
+
+    gotoxy(ix,iy);
+    puts(avion_l1);
+    gotoxy(ix,iy+1);
+    puts(avion_l2);
+    gotoxy(ix,iy+2);
+    puts(avion_l3);
+
+}
+
+void jugar()
+{
+// rutina de los asteroides
+    gotoxy(x, y);
+    cout <<"x"; 
+    gotoxy(xx, yy);
+    cout <<"x"; 
+    gotoxy(x1, y1);
+    cout <<"x"; 
+    gotoxy(x2, y2);
+    cout <<"x"; 
+
+    Sleep(70);
+
+    // borra los asteroides despues de imprimirlos
+    gotoxy(x, y); cout <<(" ");
+    gotoxy(xx, yy); cout <<(" ");
+    gotoxy(x1, y1); cout <<(" ");
+    gotoxy(x2, y2); cout <<(" ");
+
+    // cuando el asteroide llega hasta abajo del todo, vuelve para arriba
+    // la posicion X siempre va a ser random !!
+    if(y > 20)
+    {
+        y = 4;
+        x = (rand()%70) + 6;
+    }
+
+    if(yy > 20)
+    {
+        yy = 4;
+        xx = (rand()%70) + 6;
+    }
+
+    if(y1 > 20)
+    {
+        y1 = 4;
+        x1 = (rand()%70) + 6;
+    }
+
+    if(y2 > 20)
+    {
+        y2 = 4;
+        x2 = (rand()%70) + 6;
+    }
+
+    // rutina para mover el avion
+    if(kbhit()) // si se presiona una tecla
+    {
+        char tecla = getch();
+
+        switch(tecla)
+        {
+        case IZQUIERDA:
+            // para que no se salga de la pantalla
+            if(ix > 4)
+            {
+                // primero se borra el avion
+                gotoxy(ix, iy); puts(borrar_avion);
+                gotoxy(ix, iy +1); puts(borrar_avion);
+                gotoxy(ix, iy +2); puts(borrar_avion);
+
+                // le da movimiento al avion hacia la izquierda
+                ix -= 2;
+
+                // ahora dibujamos el avion en las nuevas coordenadas
+                gotoxy(ix, iy); puts(avion_l1);
+                gotoxy(ix, iy +1); puts(avion_l2);
+                gotoxy(ix, iy +2); puts(avion_l3);
+            }
+            break;
+
+        case DERECHA:
+            // para que no se salga de la pantalla
+            if(ix < 70)
+            {
+                gotoxy(ix, iy); puts(borrar_avion);
+                gotoxy(ix, iy +1); puts(borrar_avion);
+                gotoxy(ix, iy +2); puts(borrar_avion);
+
+                // le da movimiento al avion hacia la izquierda
+                ix += 2;
+
+                // ahora dibujamos el avion en las nuevas coordenadas
+                gotoxy(ix, iy); puts(avion_l1);
+                gotoxy(ix, iy +1); puts(avion_l2);
+                gotoxy(ix, iy +2); puts(avion_l3);
+            }
+            break;
+        } // fin del SWITCH
+    } // fin del IF
+
+    // rutina para golpes de asteroides
+    // coordenadas que abarca el avion en X
+    if((x > ix && x < ix +6 && y == iy-1) || (xx > ix && xx < ix +6 && yy == iy-1) || (x1 > ix && x1 < ix +6 && y1 == iy-1) ||(x2 > ix && x2 < ix +6 && y2 == iy-1))
+    {
+    corazones --;
+    barra_salud(corazones);
+	getch(); 
+    }
+    // imprime el avion
+    gotoxy(ix, iy); puts(avion_l1);
+    gotoxy(ix, iy +1); puts(avion_l2);
+    gotoxy(ix, iy +2); puts(avion_l3);
+
+    if(corazones == 0)
+    {
+        num_vidas --;
+        vidas();
+        avion_explota();
+
+	system("cls");
+
+	cout<<"\n\n\t\t -- Game Over -- \n\n";
+	
+	system("pause");
+	system("cls");
+	vidas();
+
+    corazones = 3;
+    barra_salud(corazones);
+    }
+
+    // incremento de los asteroides
+    y++;
+    yy++;
+    y1++;
+    y2++;
+}
+
+void presentacion (){
+	
+	cout << "-----------------------------------------------------------" <<endl; 
+	cout << "|\t Universidad de las fuerzas Armadas ESPE - L \t|" <<endl;
+	cout << "|\t\t Proyecto Parcial I\t\t\t|" <<endl;
+	cout << "|* Luis Rocha \t\t\t\t\t\t|" <<endl; 
+	cout << "|* Dominic Collaguazo \t\t\t\t\t| " <<endl; 
+	cout << "|* Ariel Mendez \t\t\t\t\t| " <<endl; 
+	cout << "-----------------------------------------------------------" <<endl; 
+	system ("Pause"); 
+	system ("cls");
+}
+
+int main(){
+	presentacion () ;
+	vidas();
+	barra_salud(corazones);
+	
+	gotoxy(ix, iy); puts(avion_l1);
+    gotoxy(ix, iy +1); puts(avion_l2);
+    gotoxy(ix, iy +2); puts(avion_l3);
+		
+	while(num_vidas>0) {
+		jugar();
+	}
+	
+	return 0;
+}
